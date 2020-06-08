@@ -49,6 +49,50 @@ demo.validate_tools() {
   return 0
 }
 
+demo.validate_operator_installation() {
+  info "Verifing for openshift pipelines operator installation"
+
+  # Verify Opeator controller deployment status to be available
+  while [ "$(oc get deployment openshift-pipelines-operator -n openshift-operators -o jsonpath='{.status.conditions[0].type}')" != "Available" ]
+  do
+    sleep 1s
+  done
+  oc rollout status -w deployment openshift-pipelines-operator -n openshift-operators
+
+  while [ "$(oc get project openshift-pipelines -o jsonpath='{.status.phase}')" != "Active" ]
+  do
+    sleep 1s
+  done
+
+
+  while [ "$(oc get deployment tekton-pipelines-controller -n openshift-pipelines -o jsonpath='{.status.conditions[0].type}')" != "Available" ]
+  do
+    sleep 1s
+  done
+  oc rollout status deployment -w  tekton-pipelines-controller -n openshift-pipelines
+
+  while [ "$(oc get deployment tekton-pipelines-webhook -n openshift-pipelines -o jsonpath='{.status.conditions[0].type}')" != "Available" ]
+  do
+    sleep 1s
+  done
+  oc rollout status deployment -w tekton-pipelines-webhook -n openshift-pipelines
+
+
+  while [ "$(oc get deployment tekton-triggers-controller -n openshift-pipelines -o jsonpath='{.status.conditions[0].type}')" != "Available" ]
+  do
+    sleep 1s
+  done
+  oc rollout status deployment -w tekton-triggers-controller -n openshift-pipelines
+
+  while [ "$(oc get deployment tekton-triggers-webhook -n openshift-pipelines -o jsonpath='{.status.conditions[0].type}')" != "Available" ]
+  do
+    sleep 1s
+  done
+  oc rollout status deployment -w tekton-triggers-webhook -n openshift-pipelines
+
+  info "Operator installed successfully."
+}
+
 demo.webhook-url(){
   local route=$(oc -n $NAMESPACE get route  -l eventlistener=vote-app -o name )
   local url=$(oc -n $NAMESPACE get $route --template='http://{{.spec.host}}')
@@ -57,6 +101,7 @@ demo.webhook-url(){
 
 bootstrap() {
     demo.validate_tools
+    demo.validate_operator_installation
 
     info "ensure namespace $NAMESPACE exists"
     OC get ns "$NAMESPACE" 2>/dev/null  || {
