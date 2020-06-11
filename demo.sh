@@ -193,7 +193,6 @@ demo.logs() {
 
 demo.run() {
   info "Running API Build and deploy"
-  sleep 30
   TKN pipeline start build-and-deploy \
     -r git-repo=api-repo \
     -r image=api-image \
@@ -201,7 +200,6 @@ demo.run() {
     --showlog=true
 
   info "Running UI Build and deploy"
-  sleep 30
   TKN pipeline start build-and-deploy \
     -r git-repo=ui-repo \
     -r image=ui-image \
