@@ -151,7 +151,7 @@ demo.setup-triggers() {
   info "Setup Event Listener"
   OC apply -f 03_triggers/03_event_listener.yaml
 
-  sleep 3
+  sleep 5
   info "Expose event listener"
   local el_svc=$(oc -n $NAMESPACE get svc -l eventlistener=vote-app -o name)
   OC expose $el_svc
